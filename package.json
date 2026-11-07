@@ -1,0 +1,78 @@
+{
+  "name": "twisty-lab",
+  "version": "1.1.0",
+  "private": true,
+  "description": "A study workbench for the 57 OLL speedcubing cases, with a cube simulator that verifies your own algorithms.",
+  "license": "MIT",
+  "author": "Denys Shkola",
+  "homepage": "https://alphashk.github.io/twisty-lab/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlphaShk/twisty-lab.git"
+  },
+  "main": "electron/main.cjs",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "dev:desktop": "concurrently --kill-others-on-fail \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && cross-env TWISTY_DEV_URL=http://127.0.0.1:5173 electron .\"",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "generate:images": "node scripts/generate-images.mjs",
+    "desktop": "npm run build && electron .",
+    "dist": "npm run build && electron-builder",
+    "dist:dir": "npm run build && electron-builder --dir"
+  },
+  "dependencies": {
+    "cubing": "0.63.4",
+    "lucide-react": "0.542.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.2.0",
+    "concurrently": "9.2.4",
+    "cross-env": "10.1.0",
+    "electron": "37.10.3",
+    "electron-builder": "26.15.3",
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+    "vitest": "4.1.12",
+    "wait-on": "8.0.5"
+  },
+  "build": {
+    "appId": "app.twistylab.desktop",
+    "productName": "Twisty Lab",
+    "icon": "build/icon.png",
+    "asar": true,
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "category": "public.app-category.education",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "category": "Education",
+      "target": "AppImage"
+    }
+  }
+}
