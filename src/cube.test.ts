@@ -73,6 +73,14 @@ describe('verifyAlgorithm acceptance rules', () => {
     expect(result.correct).toBe(true);
     expect(result.moveCount).toBe(10);
   });
+
+  it('starts from the case as displayed, so a needed pre-rotation must be part of the algorithm', async () => {
+    const headlights = referenceFor(21);
+    const withoutRotation = await verifyAlgorithm(headlights, "F (R U R' U')3 F'");
+    expect(withoutRotation).toMatchObject({ correct: false, ollSolved: false, f2lPreserved: true });
+    expect((await verifyAlgorithm(headlights, "y F (R U R' U')3 F'")).correct).toBe(true);
+    expect((await verifyAlgorithm(headlights, "U F (R U R' U')3 F'")).correct).toBe(true);
+  });
 });
 
 describe('verifyAlgorithm rejects wrong input', () => {

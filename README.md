@@ -5,7 +5,7 @@
 
 A study workbench for the 57 OLL cases of the Rubik's Cube, with a cube simulator that checks every algorithm you type before you rely on it.
 
-**Live demo:** [alphashk.github.io/twisty-lab](https://alphashk.github.io/twisty-lab/). It runs in any modern browser and also ships as an Electron desktop shell.
+**Live demo:** [alphashk.github.io/twisty-lab](https://alphashk.github.io/twisty-lab/). It runs in any modern browser, and the same build also runs in an Electron desktop shell.
 
 ![Twisty Lab workbench: OLL 21 with a custom algorithm verified on the simulated cube (sample progress data)](docs/workbench.png)
 
@@ -20,14 +20,14 @@ Twisty Lab keeps the whole set in one place. It has a filterable case library, a
 | Cases | All 57 OLL cases in 15 recognition-shape groups |
 | Built-in algorithms | 121: a curated default for each case plus 64 distinct alternatives from JPerm's OLL list |
 | Verification | Your own algorithms must pass the simulator check before they can become the preferred one |
-| Tests | 302 unit tests (Vitest). Every built-in algorithm (the 57 defaults and all 98 JPerm listings) passes the verifier |
+| Tests | 303 unit tests (Vitest). Every built-in algorithm (the 57 defaults and all 98 JPerm listings) passes the verifier |
 | Case diagrams | Generated from the algorithms, not drawn by hand. A test proves they are 57 distinct cases |
 | Platforms | Web (GitHub Pages, responsive down to 375 px wide) and an Electron desktop shell |
 
 ## Features
 
 - **Library:** search by case number, shape group, recognition cue or move. Filter by group and learning status, and bookmark cases.
-- **Workbench:** a 3D or top-view 2D cube animated with [cubing.js](https://js.cubing.net/cubing/), held with yellow on top as cubers do. Switch between the preferred algorithm, the JPerm alternatives and your own.
+- **Workbench:** a 3D or top-view 2D cube animated with [cubing.js](https://js.cubing.net/cubing/), held with yellow on top to match the case diagrams. Switch between the preferred algorithm, the JPerm alternatives and your own.
 - **Move phrases:** each algorithm is split into four-move phrases. Pick one to replay it on its own from the position where it starts.
 - **Your algorithms:** add, name, verify, save and delete alternatives. Only verified ones can be made preferred.
 - **Study aids:** learning status (unlearned, learning, learned), notes, a progress dashboard with completion per shape group, side-by-side comparison with a similar case, and ← / → to step through cases.
@@ -44,13 +44,15 @@ Twisty Lab keeps the whole set in one place. It has a filterable case library, a
 3. **Normalise the orientation.** Candidates may contain rotations (`x`, `y`, `z`) or slice and wide moves that move the centres. The 24 whole-cube orientations are enumerated once by a breadth-first search over `x`, `y` and `z`, keyed by the centre permutation. The result is then turned so that every centre is back home.
 4. **Accept OLL.** The four last-layer edges and corners must have orientation 0 (every U sticker on top). Every F2L edge and corner must be in its home slot with orientation 0. The last-layer permutation (PLL) and a final U turn (AUF) are left free.
 
-Failures are reported precisely: a syntax error, a move the 3x3x3 does not have, *"OLL is oriented, but the algorithm changes an F2L piece"*, or *"F2L stays intact, but at least one top sticker remains unoriented"*. For example, `F (R U R' U')3 F'` is rejected for OLL 21 as the app sets it up, while `y F (R U R' U')3 F'` is accepted.
+Failures are reported precisely: a syntax error, a move the 3x3x3 does not have, *"OLL is oriented, but the algorithm changes an F2L piece"*, or *"F2L stays intact, but at least one top sticker remains unoriented"*. For example, `F (R U R' U')3 F'` is rejected for OLL 21 as the app sets it up, while `y F (R U R' U')3 F'` is accepted. Both are in the test suite.
 
 ### Case diagrams
 
 [`scripts/generate-images.mjs`](scripts/generate-images.mjs) rebuilds each case the same way and reads the last-layer orientation directly from the `KPuzzle` pattern ([`src/ollDiagram.ts`](src/ollDiagram.ts)). A piece with orientation *o* shows its U sticker on facelet *o* of its slot, and facelets are numbered clockwise from the U face. From that, the script writes one SVG per case, the favicon and the app icon.
 
-The tests check three things. First, the committed SVGs match the generator. Second, the shapes agree with the recognition groups: dot cases have no oriented edge, cross cases have all four, and every other case has exactly two. Third, the 57 diagrams differ pairwise even after U turns. The 216 possible last-layer orientation states fall into exactly 58 classes under U turns (by Burnside's lemma), and one of those is the solved state. So this proves that the reference algorithms cover all of OLL.
+The tests check four things. First, the committed SVGs match the generator. Second, each diagram shows every U sticker exactly once, on top or on a side. Third, the shapes agree with the recognition groups: dot cases have no oriented edge, cross cases have all four, and every other case has exactly two. Fourth, the 57 diagrams differ pairwise even after U turns. The 216 possible last-layer orientation states fall into exactly 58 classes under U turns (by Burnside's lemma), and one of those is the solved state. So this proves that the reference algorithms cover all of OLL.
+
+![Case library with the generated top-view diagrams (sample progress data)](docs/library.png)
 
 ## Architecture
 
@@ -77,7 +79,7 @@ flowchart LR
   Shell -.-> UI
 ```
 
-The web build is static: relative asset URLs (`base: './'`) let the same `dist/` load from `file://` in Electron and from `/twisty-lab/` on GitHub Pages. In the browser the custom window bar is hidden. In Electron the window has a hidden title bar with `contextIsolation` and `sandbox` enabled, and the preload script exposes only minimise, maximise and close.
+The web build is static: relative asset URLs (`base: './'`) let the same `dist/` load from `file://` in Electron and from `/twisty-lab/` on GitHub Pages. In the browser the custom window bar is hidden. In Electron the window has a hidden title bar with `contextIsolation` and `sandbox` enabled, and the preload script exposes only the platform name and the minimise, maximise and close actions.
 
 ## Quickstart
 
@@ -118,7 +120,7 @@ docs/                README screenshots
 
 | Suite | What it covers |
 |---|---|
-| `cube.test.ts` | Reference data (57 cases, 121 built-in algorithms). Every preferred algorithm, all 98 JPerm listings and the 64 shown in the UI pass the verifier. Acceptance rules: final AUF, trailing rotations, rotations mid-algorithm. Rejections: F2L broken, wrong case, syntax errors, unknown moves, empty input |
+| `cube.test.ts` | Reference data (57 cases, 121 built-in algorithms). Every preferred algorithm, all 98 JPerm listings and the 64 shown in the UI pass the verifier. Acceptance rules: final AUF, trailing rotations, rotations mid-algorithm, a required pre-rotation. Rejections: F2L broken, wrong case, syntax errors, unknown moves, empty input |
 | `notation.test.ts` | Parsing, move counts without rotations, phrase splitting |
 | `ollDiagram.test.ts` | Group consistency, the 57-distinct-cases proof, committed SVGs in sync with the generator |
 | `styles.test.ts` | No font size below 12 px |
@@ -128,6 +130,7 @@ docs/                README screenshots
 ## Limitations
 
 - It verifies algorithms but does not search for them. There is no solver and no pruning table.
+- Verification starts from the case exactly as the app displays it. An algorithm that needs a U turn or a `y` rotation first must include it.
 - It covers OLL only, with no PLL or F2L training.
 - Progress lives in one browser's localStorage, with no sync or export.
 - Recognition cues are hand-written for 16 cases. The others use a generic hint for their shape group.
