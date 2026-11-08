@@ -80,7 +80,10 @@ export function assertLastLayerCase(pattern: KPattern) {
   if (centers.pieces.some((piece, index) => piece !== index)) {
     throw new Error('The centres are not in their home positions.');
   }
-  for (const [orbit, count] of [['EDGES', 12], ['CORNERS', 8]] as const) {
+  for (const [orbit, count] of [
+    ['EDGES', 12],
+    ['CORNERS', 8],
+  ] as const) {
     const { pieces, orientation } = orbitData(pattern, orbit);
     for (let position = 0; position < count; position += 1) {
       const inLastLayer = position < 4;
@@ -97,10 +100,14 @@ export function assertLastLayerCase(pattern: KPattern) {
 /** Reads the last-layer orientation of a pattern produced by `ollCasePattern`. */
 export function lastLayerOrientation(pattern: KPattern): LastLayerOrientation {
   assertLastLayerCase(pattern);
-  const shows = (cell: Facelet) => orbitData(pattern, cell.orbit).orientation[cell.position] === cell.facelet;
+  const shows = (cell: Facelet) =>
+    orbitData(pattern, cell.orbit).orientation[cell.position] === cell.facelet;
   return {
     face: FACE_CELLS.map((cell) => cell === 'center' || shows(cell)),
-    sides: Object.fromEntries(SIDES.map((side) => [side, SIDE_CELLS[side].map(shows)])) as Record<Side, boolean[]>,
+    sides: Object.fromEntries(SIDES.map((side) => [side, SIDE_CELLS[side].map(shows)])) as Record<
+      Side,
+      boolean[]
+    >,
   };
 }
 
@@ -146,13 +153,17 @@ export function ollDiagramShapes(state: LastLayerOrientation): string[] {
   const offset = (index: number) => faceStart + pad + index * (cell + inner);
 
   const parts: string[] = [];
-  parts.push(`<rect x="${round(faceStart)}" y="${round(faceStart)}" width="${round(faceSize)}" height="${round(faceSize)}" rx="7" fill="${COLORS.body}"/>`);
+  parts.push(
+    `<rect x="${round(faceStart)}" y="${round(faceStart)}" width="${round(faceSize)}" height="${round(faceSize)}" rx="7" fill="${COLORS.body}"/>`,
+  );
 
   state.face.forEach((isTop, index) => {
     const x = offset(index % 3);
     const y = offset(Math.floor(index / 3));
     const fill = isTop ? COLORS.top : COLORS.off;
-    parts.push(`<rect x="${round(x)}" y="${round(y)}" width="${round(cell)}" height="${round(cell)}" rx="3" fill="${fill}"/>`);
+    parts.push(
+      `<rect x="${round(x)}" y="${round(y)}" width="${round(cell)}" height="${round(cell)}" rx="3" fill="${fill}"/>`,
+    );
   });
 
   const stripRect = (side: Side, index: number) => {
@@ -160,10 +171,14 @@ export function ollDiagramShapes(state: LastLayerOrientation): string[] {
     const near = 1;
     const far = view - 1 - strip;
     switch (side) {
-      case 'back': return { x: along, y: near, width: stripLength, height: strip };
-      case 'front': return { x: along, y: far, width: stripLength, height: strip };
-      case 'left': return { x: near, y: along, width: strip, height: stripLength };
-      case 'right': return { x: far, y: along, width: strip, height: stripLength };
+      case 'back':
+        return { x: along, y: near, width: stripLength, height: strip };
+      case 'front':
+        return { x: along, y: far, width: stripLength, height: strip };
+      case 'left':
+        return { x: near, y: along, width: strip, height: stripLength };
+      case 'right':
+        return { x: far, y: along, width: strip, height: stripLength };
     }
   };
 
@@ -173,7 +188,9 @@ export function ollDiagramShapes(state: LastLayerOrientation): string[] {
       const paint = isTop
         ? `fill="${COLORS.top}" stroke="${COLORS.topEdge}" stroke-width="0.8"`
         : `fill="${COLORS.sideOff}"`;
-      parts.push(`<rect x="${round(x)}" y="${round(y)}" width="${round(width)}" height="${round(height)}" rx="2" ${paint}/>`);
+      parts.push(
+        `<rect x="${round(x)}" y="${round(y)}" width="${round(width)}" height="${round(height)}" rx="2" ${paint}/>`,
+      );
     });
   }
 
