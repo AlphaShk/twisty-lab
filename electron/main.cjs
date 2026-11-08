@@ -13,13 +13,10 @@ function createWindow() {
     title: 'Twisty Lab',
     show: false,
     autoHideMenuBar: true,
+    // No native title bar. macOS keeps its traffic lights; on Windows and Linux
+    // the app's own window bar draws minimise, maximise and close (see preload.cjs).
     titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
     trafficLightPosition: isMac ? { x: 18, y: 18 } : undefined,
-    titleBarOverlay: isMac ? false : {
-      color: '#f4f5ef',
-      symbolColor: '#25312b',
-      height: 42,
-    },
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,

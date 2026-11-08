@@ -15,23 +15,33 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cube3x3x3 } from 'cubing/puzzles';
 import { preferredAlgorithms } from '../src/algorithms.ts';
-import { lastLayerOrientation, ollCasePattern, ollDiagramShapes, renderOllSvg } from '../src/ollDiagram.ts';
+import {
+  lastLayerOrientation,
+  ollCasePattern,
+  ollDiagramShapes,
+  renderOllSvg,
+} from '../src/ollDiagram.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
 const ICON_CASE = 27;
 
 const kpuzzle = await cube3x3x3.kpuzzle();
-const stateFor = (number) => lastLayerOrientation(ollCasePattern(kpuzzle, preferredAlgorithms[number]));
+const stateFor = (number) =>
+  lastLayerOrientation(ollCasePattern(kpuzzle, preferredAlgorithms[number]));
 
 const files = new Map();
 for (let number = 1; number <= 57; number += 1) {
   files.set(`public/oll/${number}.svg`, renderOllSvg(stateFor(number), { title: `OLL ${number}` }));
 }
 
-const iconShapes = ollDiagramShapes(stateFor(ICON_CASE)).map((shape) => `    ${shape}`).join('\n');
+const iconShapes = ollDiagramShapes(stateFor(ICON_CASE))
+  .map((shape) => `    ${shape}`)
+  .join('\n');
 files.set('public/favicon.svg', renderOllSvg(stateFor(ICON_CASE), { size: 32 }));
-files.set('build/icon.svg', `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+files.set(
+  'build/icon.svg',
+  `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#fbfbf7"/>
@@ -43,7 +53,8 @@ files.set('build/icon.svg', `<svg xmlns="http://www.w3.org/2000/svg" width="512"
 ${iconShapes}
   </g>
 </svg>
-`);
+`,
+);
 
 let stale = 0;
 for (const [path, content] of files) {
@@ -64,4 +75,6 @@ if (check && stale) {
   console.error(`${stale} generated file(s) are out of date. Run npm run generate:images.`);
   process.exit(1);
 }
-console.log(check ? `All ${files.size} generated files are up to date.` : `Wrote ${files.size} files.`);
+console.log(
+  check ? `All ${files.size} generated files are up to date.` : `Wrote ${files.size} files.`,
+);
